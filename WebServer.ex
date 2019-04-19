@@ -43,6 +43,7 @@ defmodule WebServer do
             req == "GET" -> get_req(socket, page, prot)
             req == "POST" -> post_req(socket, page, prot)
             req == "FETCH" -> fetch_req(socket, page, prot)
+            true -> ""
         end
     end
 
@@ -54,9 +55,12 @@ defmodule WebServer do
     end 
 
     defp post_req(socket, page, prot) do 
+        #need to figure out how to read data passed by 'send'
         send_header(socket, String.replace(prot, "\r\n", ""), 200, "OK", "text", "plain")
-        write_data(String.replace_prefix(page, "/", ""))
+        write_data("")
+        file_data("chat.txt")
     end 
+
 
     defp fetch_req(socket, page, prot) do
         send_header(socket, String.replace(prot, "\r\n", ""), 200, "OK", "text", "txt")
@@ -101,7 +105,6 @@ defmodule WebServer do
             page == "flush" -> File.write("chat.txt", "")
             true -> File.write("chat.txt", String.replace_prefix(String.replace(page, "%20", " "), "", "<br>"), [:append])
         end
-        ""
     end
 
     def main(args \\ []) do 
