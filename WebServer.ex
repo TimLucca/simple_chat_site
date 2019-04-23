@@ -56,11 +56,22 @@ defmodule WebServer do
 
     defp post_req(socket, page, prot) do 
         #need to figure out how to read data passed by 'send'
+        Logger.info("Getting data")
+        data = read_data(socket)
         send_header(socket, String.replace(prot, "\r\n", ""), 200, "OK", "text", "plain")
-        write_data("")
+        write_data(data)
         file_data("chat.txt")
     end 
 
+    defp read_data(socket) do 
+        {status, data} = :gen_tcp.recv(socket, 0)
+        Logger.info (data)
+        case {status, data} do 
+            {:ok, data} -> data <> read_data(socket)
+            {:error, :closed} -> ""
+            {:error, reason} -> Logger.error reason  
+        end
+    end 
 
     defp fetch_req(socket, page, prot) do
         send_header(socket, String.replace(prot, "\r\n", ""), 200, "OK", "text", "txt")
